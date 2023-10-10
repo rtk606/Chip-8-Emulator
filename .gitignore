@@ -405,3 +405,4 @@ FodyWeavers.xsd
 
 # Exclude 3rdParty folder
 3rdParty/
+build/
