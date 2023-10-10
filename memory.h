@@ -8,7 +8,7 @@ namespace rtk {
 	public:
 		static constexpr int kStaringtAddress = 0x200;
 		static constexpr int kMaxRomFileSize = 0xDFF;
-		static constexpr std::array<uint8_t, 80> kFontSet =
+		static constexpr std::array<uint8_t, 0x50> kFontSet =
 		{
 			0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 			0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -34,11 +34,20 @@ namespace rtk {
 
 		void Reset() {
 			memory.fill(0);
-			std::copy(begin(kFontSet), end(kFontSet), begin(memory));
+			std::copy(begin(kFontSet), end(kFontSet), begin(memory)); // load kfontset
 		}
 
 		void SaveProgram(std::vector<uint8_t>& source) {
+			if (source.size() > memory.size() - kStaringtAddress) {
+				std::cerr << "ROM is too large to fit into memory!" << std::endl;
+				return;
+			} //
+
 			std::copy(begin(source), end(source), begin(memory) + kStaringtAddress);
+		}
+
+		uint8_t& operator[](int index) {
+			return memory.at(index);
 		}
 
 

@@ -402,3 +402,6 @@ FodyWeavers.xsd
 *.vcxproj
 *.vcxproj.filters
 *.sln
+
+# Exclude 3rdParty folder
+3rdParty/
