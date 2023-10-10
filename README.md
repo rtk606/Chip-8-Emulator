@@ -1,4 +1,4 @@
-# Chip8-Emulator
+# 👾 Chip-8 Emulator
 
 A simple emulator for the CHIP-8.
 
