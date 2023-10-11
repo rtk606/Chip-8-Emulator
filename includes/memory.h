@@ -1,4 +1,5 @@
 #pragma once
+
 #include <array>
 #include <cinttypes>
 #include <string_view>

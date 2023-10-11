@@ -1,49 +1,54 @@
 #include <iostream>
 #include <chrono>
+#include <array>
+
 #include "platform.h"
 #include "chip8.h"
 
-constexpr int VIDEO_WIDTH = 64;  // CHIP-8 default video width
-constexpr int VIDEO_HEIGHT = 32; // CHIP-8 default video height
+namespace Chip8Config {
+    constexpr int VIDEO_WIDTH = 64;  // CHIP-8 default video width
+    constexpr int VIDEO_HEIGHT = 32; // CHIP-8 default video height
+    constexpr int expectedArgCount = 4;
+}
 
-int main(int argc, char** argv)
-{
-	if (argc != 4)
-	{
-		std::cerr << "Usage: " << argv[0] << " <Scale> <Delay> <ROM>\n";
-		std::exit(EXIT_FAILURE);
-	}
+int main(int argc, char** argv) {
+    using namespace Chip8Config;
 
-	int videoScale = std::stoi(argv[1]);
-	int cycleDelay = std::stoi(argv[2]);
-	char const* romFilename = argv[3];
+    // Check command line arguments
+    if (argc != expectedArgCount) {
+        std::cerr << "Usage: " << argv[0] << " <Scale> <Delay> <ROM>\n";
+        return EXIT_FAILURE;
+    }
 
-	Platform platform("CHIP-8 Emulator", VIDEO_WIDTH * videoScale, VIDEO_HEIGHT * videoScale, VIDEO_WIDTH, VIDEO_HEIGHT);
+    int videoScale = std::stoi(argv[1]);
+    int cycleDelay = std::stoi(argv[2]);
+    std::string romFilename = argv[3];
 
-	rtk::Chip8 chip8; 
-	chip8.LoadROM(romFilename);
+    // Initialize platform and CHIP-8 emulator
+    Platform platform{"CHIP-8 Emulator", VIDEO_WIDTH * videoScale, VIDEO_HEIGHT * videoScale, VIDEO_WIDTH, VIDEO_HEIGHT};
+    rtk::Chip8 chip8; 
+    chip8.LoadROM(romFilename.c_str());
 
-	int videoPitch = sizeof(chip8.video[0]) * VIDEO_WIDTH;
+    // Calculate video pitch
+    auto videoPitch = sizeof(chip8.video[0]) * chip8.video.size();
 
-	auto lastCycleTime = std::chrono::high_resolution_clock::now();
-	bool quit = false;
+    using namespace std::chrono;
+    auto lastCycleTime = high_resolution_clock::now();
+    bool quit = false;
 
-	while (!quit)
-	{
-		quit = platform.ProcessInput(chip8.keypad);
+    // Main loop
+    while (!quit) {
+        quit = platform.ProcessInput(chip8.keypad);
+        
+        auto currentTime = high_resolution_clock::now();
+        auto deltaTime = duration<float, milliseconds::period>(currentTime - lastCycleTime).count();
 
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float dt = std::chrono::duration<float, std::chrono::milliseconds::period>(currentTime - lastCycleTime).count();
+        if (deltaTime > cycleDelay) {
+            lastCycleTime = currentTime;
+            chip8.Cycle();
+            platform.Update(chip8.video.data(), videoPitch);
+        }
+    }
 
-		if (dt > cycleDelay)
-		{
-			lastCycleTime = currentTime;
-
-			chip8.Cycle();
-
-			platform.Update(chip8.video, videoPitch);
-		}
-	}
-
-	return 0;
+    return EXIT_SUCCESS;
 }

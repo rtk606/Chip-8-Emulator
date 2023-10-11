@@ -1,4 +1,5 @@
 #include "Platform.h"
+
 #include <glad/gl.h>
 #include <SDL.h>
 
