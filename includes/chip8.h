@@ -17,8 +17,8 @@ namespace rtk {
 		void OP_SKNP(Opcode opcode);
 		void OP_LD_VX_K(Opcode opcode);
 
-		uint8_t keypad[16]{};
-		uint32_t video[64 * 32]{};
+		std::array<uint8_t, 16> keypad{};
+		std::array<uint32_t, 64 * 32> video{};
 
 	private:
 		Cpu cpu;
