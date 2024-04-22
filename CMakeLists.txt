@@ -3,4 +3,4 @@ project(chip8)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(chip8 main.cpp "core/chip8.h" "core/chip8.cpp")
+add_executable(chip8 main.cpp "core/chip8.h" "core/chip8.cpp" "core/random.h" "core/parser.h" "core/opcode.h" "core/instructions.h" )
