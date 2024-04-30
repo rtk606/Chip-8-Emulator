@@ -4,7 +4,6 @@
 #include "random.h"
 #include "opcode.h"
 
-
 // 00E0 - Clear the display.
 void CLS(Chip8* chip8) {
     chip8->display.fill(0);

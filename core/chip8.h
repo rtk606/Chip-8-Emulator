@@ -6,7 +6,6 @@
 #include <iostream>
 #include "random.h"
 
-
 class Chip8 {
 public:
 	// Constants defining the display dimensions, ROM start address (0x000 to 0x1FF is reserved) and character sprites
