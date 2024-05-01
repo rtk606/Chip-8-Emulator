@@ -4,6 +4,14 @@
 * text=auto
 
 ###############################################################################
+# Linguist overrides to focus on core folder only
+###############################################################################
+
+# Treat all files as vendored, then selectively un-vendored the core directory
+* linguist-vendored
+/core/* linguist-vendored=false
+
+###############################################################################
 # Set binary files to avoid diff problems in images and executable files.
 ###############################################################################
 *.png binary
@@ -21,25 +29,7 @@
 *.md text
 
 ###############################################################################
-# Linguist documentation and overrides
-###############################################################################
-# Mark directories containing third-party or vendored code
-third_party/* linguist-vendored
-external/* linguist-vendored
-
-# Ignore ROM files in language stats
-roms/*.ch8 linguist-vendored
-
-# Mark generated files to avoid skewing repo language stats
-*.pb.cc linguist-generated=true
-*.pb.h linguist-generated=true
-
-###############################################################################
-# diff behavior for common document formats
-# 
-# Convert binary document formats to text before diffing them. This feature
-# is only available from the command line. Turn it on by uncommenting the 
-# entries below.
+# Diff behavior for common document formats
 ###############################################################################
 *.doc   diff=astextplain
 *.DOC   diff=astextplain
