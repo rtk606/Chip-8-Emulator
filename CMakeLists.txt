@@ -40,16 +40,19 @@ file(GLOB SOURCES_CHIP8 core/*.cpp)
 file(GLOB SOURCES_IMGUI ${THIRD_PARTY}/imgui/*.cpp)
 file(GLOB SOURCES_IMGUI ${THIRD_PARTY}/imgui/*.cpp)
 
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
+
 # Set SOURCES variable which includes all source files from core and imgui directories, and specific backend implementations for imgui
 set(SOURCES
   ${SOURCES_CHIP8}
   ${SOURCES_IMGUI}
   ${THIRD_PARTY}/imgui/backends/imgui_impl_opengl3.cpp
   ${THIRD_PARTY}/imgui/backends/imgui_impl_glfw.cpp
+  main.cpp  
 )
 
 # Compile all source files into an executable named as defined by EXEC variable
-add_executable(${EXEC} ${SOURCES})
+add_executable(${EXEC} ${SOURCES}  "core/graphics.h" "core/graphics.cpp")
 
 # Link the executable with the GLFW and OpenGL libraries
 target_link_libraries(${EXEC} glfw)

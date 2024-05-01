@@ -3,35 +3,42 @@
 #include "parser.h"
 #include "instructions.h"
 
-Chip8::Chip8() {
+Chip8::Chip8(GLFWwindow* window) : window(window) {
 	ResetChip8();
 }
 
 void Chip8::ResetChip8() {
 	memory.fill(0);
 	pc = kStartAddress;
-	std::copy(begin(kSprites), end(kSprites), begin(memory) + 0x50);		// Load kSprites into memory starting at 0x50
+    std::copy(begin(kSprites), end(kSprites), begin(memory) + 0x50);
 }
 
-void Chip8::LoadRom(std::string_view filename) {
+bool Chip8::LoadRom(std::string_view filename) {
+    std::cout << "Attempting to open ROM file at path: " << filename << std::endl; 
     std::ifstream file(filename.data(), std::ios::binary | std::ios::ate);
-
-    if (!file.is_open())
-        return;
+    if (!file.is_open()) {
+        std::cerr << "Failed to open ROM file." << std::endl;
+        return false;
+    }
 
     auto size = file.tellg();
+    if (size <= 0) {
+        std::cerr << "ROM file is empty or read error occurred." << std::endl;
+        return false;
+    }
+
     file.seekg(0, std::ios::beg);
     file.read(reinterpret_cast<char*>(&memory[kStartAddress]), size);
     file.close();
+    std::cerr << "Loaded ROM size: " << size << " bytes." << std::endl;
+    return true;
 }
 
 // Fetch-decode-execute cycle (fetch the opcode, decode the operation and execute the instruction)
 void Chip8::Tick() {
-	// Fetch
 	opcode = memory[pc] << 8 | memory[pc + 1];
     auto instruction = parse(opcode);
 
-	// Increment the program counter
 	pc += 2;
 
     switch (instruction) {
@@ -58,10 +65,10 @@ void Chip8::Tick() {
         case Instruction::JMP_V0: return JP_V0(opcode, this);
         case Instruction::RND: return RND(opcode, this, &rand);
         case Instruction::DRW: return DRW(opcode, this);
-        case Instruction::SKP: return SKP(opcode, this);
-        case Instruction::SKNP: return SKNP(opcode, this);
+        case Instruction::SKP: return SKP(opcode, this, window);
+        case Instruction::SKNP: return SKNP(opcode, this, window);
         case Instruction::LD_VX_DT: return LD_VX_DT(opcode, this);
-        case Instruction::LD_VX_K: return LD_VX_K(opcode, this);
+        case Instruction::LD_VX_K: return LD_VX_K(opcode, this, window);
         case Instruction::LD_DT: return LD_DT(opcode, this);
         case Instruction::LD_ST: return LD_ST(opcode, this);
         case Instruction::ADD_I_VX: return ADD_I_VX(opcode, this);
@@ -71,9 +78,25 @@ void Chip8::Tick() {
         case Instruction::LD_VX_I: return LD_VX_I(opcode, this);
 
         default:
-            throw bad_opcode(opcode);
+            break;
     }
+}
 
-    if (delayTimer > 0) --delayTimer;
-    if (soundTimer > 0) --soundTimer;
+void Chip8::TickTimer() {
+    if (delayTimer > 0) delayTimer--;   
+    if (soundTimer > 0) {
+        if (soundTimer == 1) {
+            beep = true;
+        }
+
+        soundTimer--;
+    }
+}
+
+bool Chip8::IsPressed(GLFWwindow* window, uint8_t key) {
+    // Ensure the key index is valid
+    if (key < 16) {  
+        return glfwGetKey(window, keymap[key]) == GLFW_PRESS;
+    }
+    return false;
 }

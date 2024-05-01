@@ -11,7 +11,13 @@ void CLS(Chip8* chip8) {
 
 // 00EE - Return from a subroutine.
 void RET(Chip8* chip8) {
-    chip8->pc = chip8->stack[--chip8->sp];
+    if (chip8->sp > 0) {
+        chip8->pc = chip8->stack[--chip8->sp];
+    }
+    else {
+        std::cerr << "Stack underflow error!" << std::endl;
+        abort();
+    }
 }
 
 // 1nnn - Jump to location nnn.
@@ -21,8 +27,14 @@ void JMP(Opcode in, Chip8* chip8) {
 
 // 2nnn - Call subroutine at nnn.
 void CALL(Opcode in, Chip8* chip8) {
-    chip8->stack[chip8->sp++] = chip8->pc;
-    chip8->pc = in.address();
+    if (chip8->sp < 16) {
+        chip8->stack[chip8->sp++] = chip8->pc;
+        chip8->pc = in.address();
+    }
+    else {
+        std::cerr << "Stack overflow error!" << std::endl;
+        abort();
+    }
 }
 
 // 3xkk - Skip next instruction if Vx = kk.
@@ -133,30 +145,31 @@ void RND(Opcode in, Chip8* chip8, Random* rand) {
 void DRW(Opcode in, Chip8* chip8) {
     chip8->registers[0x0F] = 0;
     for (int y = 0; y < in.low(); ++y) {
-        uint8_t byte_to_draw = chip8->memory[chip8->index + y];
+        uint8_t sprite_byte = chip8->memory[chip8->index + y];
         for (int x = 0; x < 8; ++x) {
-            // draw bits from most-to-least-significant
-            if (byte_to_draw & (0b10000000 >> x)) {
-                uint16_t px = chip8->registers[in.x()] + x;
-                uint16_t py = chip8->registers[in.y()] + y;
+            if (sprite_byte & (0x80 >> x)) {
+                uint16_t px = (chip8->registers[in.x()] + x) % Chip8::kWidth;
+                uint16_t py = (chip8->registers[in.y()] + y) % Chip8::kHeight;
                 uint16_t pixel = px + py * Chip8::kWidth;
                 if (chip8->display[pixel]) chip8->registers[0x0F] = 1;
                 chip8->display[pixel] ^= 1;
             }
         }
     }
+    chip8->redraw = true;
 }
 
+
 // Ex9E - Skip instruction if key with the value of Vx is pressed.
-void SKP(Opcode in, Chip8* chip8) {
-    if (chip8->IsPressed(chip8->registers[in.x()]) == 1) {
+void SKP(Opcode in, Chip8* chip8, GLFWwindow* window) {
+    if (chip8->IsPressed(window, chip8->registers[in.x()])) {
         chip8->pc += 2;
     }
 }
 
 // ExA1 - Skip instruction if key with the value of Vx is not pressed.
-void SKNP(Opcode in, Chip8* chip8) {
-    if (chip8->IsPressed(chip8->registers[in.x()]) == 0) {
+void SKNP(Opcode in, Chip8* chip8, GLFWwindow* window) {
+    if (!chip8->IsPressed(window, chip8->registers[in.x()])) {
         chip8->pc += 2;
     }
 }
@@ -167,9 +180,9 @@ void LD_VX_DT(Opcode in, Chip8* chip8) {
 }
 
 // Fx0A - Wait for a key press, store the value of the key in Vx.
-void LD_VX_K(Opcode in, Chip8* chip8) {
+void LD_VX_K(Opcode in, Chip8* chip8, GLFWwindow* window) {
     for (auto i = 0; i < 0x0F; ++i) {
-        if (chip8->IsPressed(i)) {
+        if (chip8->IsPressed(window, i)) {
             chip8->registers[in.x()] = i;
         }
     }
