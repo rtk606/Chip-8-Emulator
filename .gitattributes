@@ -28,7 +28,7 @@ third_party/* linguist-vendored
 external/* linguist-vendored
 
 # Ignore ROM files in language stats
-roms/* linguist-vendored
+roms/*.ch8 linguist-vendored
 
 # Mark generated files to avoid skewing repo language stats
 *.pb.cc linguist-generated=true
