@@ -1,43 +1,12 @@
-###############################################################################
-# Set default behavior to automatically normalize line endings.
-###############################################################################
-* text=auto
-
-###############################################################################
-# Linguist overrides to focus on core folder only
-###############################################################################
-
-# Treat all files as vendored, then selectively un-vendored the core directory
+# Mark all files as linguist-vendored to exclude them by default
 * linguist-vendored
-/core/* linguist-vendored=false
 
-###############################################################################
-# Set binary files to avoid diff problems in images and executable files.
-###############################################################################
-*.png binary
-*.jpg binary
-*.gif binary
-*.exe binary
-*.dll binary
+# Unmark C++ source and header files so they are included in language statistics
+*.cpp linguist-vendored=false
+*.cxx linguist-vendored=false
+*.hpp linguist-vendored=false
+*.hxx linguist-vendored=false
 
-###############################################################################
-# Explicitly declare text files to avoid any CRLF issues.
-###############################################################################
-*.cpp text
-*.h text
-*.txt text
-*.md text
-
-###############################################################################
-# Diff behavior for common document formats
-###############################################################################
-*.doc   diff=astextplain
-*.DOC   diff=astextplain
-*.docx  diff=astextplain
-*.DOCX  diff=astextplain
-*.dot   diff=astextplain
-*.DOT   diff=astextplain
-*.pdf   diff=astextplain
-*.PDF   diff=astextplain
-*.rtf   diff=astextplain
-*.RTF   diff=astextplain
+# Unmark CMake configuration files so they are included in language statistics
+CMakeLists.txt linguist-vendored=false
+*.cmake linguist-vendored=false
