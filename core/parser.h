@@ -42,7 +42,7 @@ enum class Instruction {
 
 // Standard Chip-8 instructions reference:
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
-Instruction parse(Opcode opcode) {
+inline Instruction parse(Opcode opcode) {
     switch (opcode.high()) {
     case 0x00:
         switch (opcode.byte()) {

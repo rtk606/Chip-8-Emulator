@@ -21,16 +21,23 @@ bool Chip8::LoadRom(std::string_view filename) {
         return false;
     }
 
-    auto size = file.tellg();
-    if (size <= 0) {
+    // Find the last occurrence of a backslash
+    size_t position = filename.find_last_of("\\");
+
+    // For the GUI (todo fix romPath, hardcoded for now)
+    romTitle = filename.substr(position + 1); 
+    romPath = "C:\\Users\\RTK\\C++\\Chip8\\invaders.ch8";
+    romSize = file.tellg();
+
+    if (romSize <= 0) {
         std::cerr << "ROM file is empty or read error occurred." << std::endl;
         return false;
-    }
+    }    
 
     file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(&memory[kStartAddress]), size);
+    file.read(reinterpret_cast<char*>(&memory[kStartAddress]), romSize);
     file.close();
-    std::cerr << "Loaded ROM size: " << size << " bytes." << std::endl;
+    std::cerr << "Loaded ROM size: " << romSize << " bytes." << std::endl;
     return true;
 }
 

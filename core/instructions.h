@@ -27,14 +27,8 @@ void JMP(Opcode in, Chip8* chip8) {
 
 // 2nnn - Call subroutine at nnn.
 void CALL(Opcode in, Chip8* chip8) {
-    if (chip8->sp < 16) {
-        chip8->stack[chip8->sp++] = chip8->pc;
-        chip8->pc = in.address();
-    }
-    else {
-        std::cerr << "Stack overflow error!" << std::endl;
-        abort();
-    }
+    chip8->stack[chip8->sp++] = chip8->pc;
+    chip8->pc = in.address();
 }
 
 // 3xkk - Skip next instruction if Vx = kk.

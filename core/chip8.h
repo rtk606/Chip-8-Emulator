@@ -17,6 +17,8 @@ public:
     void TickTimer();
     bool IsPressed(GLFWwindow* window, uint8_t key);
 
+    static constexpr int kWindowWidth = 1280;
+    static constexpr int kWindowHeight = 720;
     static constexpr int kWidth = 64;
     static constexpr int kHeight = 32;
     static constexpr int kStartAddress = 0x200;    
@@ -66,8 +68,14 @@ public:
     uint8_t delayTimer = 0;
     uint8_t soundTimer = 0;
     uint16_t opcode = 0;
+
     bool beep = false;
     bool redraw = false;
+
+    // ROM GUI variables
+    std::string romTitle = "N/A";
+    std::string romPath = "N/A";
+    int romSize = 0;
 
     Random rand;
 };

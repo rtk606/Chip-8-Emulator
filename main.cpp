@@ -6,7 +6,6 @@
 #include <imgui_internal.h>
 
 #include "core/chip8.h"
-#include "core/font.h"
 #include "core/graphics.h"
 
 int main(int argc, char** argv) {
@@ -22,8 +21,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    // Create a GLFW window for the Chip-8 emulator
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Chip-8 Emulator", NULL, NULL);
+    // Create a GLFW window for the Chip-8 emulator (1280x760)
+    GLFWwindow* window = glfwCreateWindow(Chip8::kWindowWidth, Chip8::kWindowHeight, "Chip-8 Emulator", NULL, NULL);
     if (!window) {
         std::cerr << "Error: window creation failed." << std::endl;
         glfwTerminate();
@@ -41,10 +40,10 @@ int main(int argc, char** argv) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     // Initialize the display pixel buffer with all pixels set to black (0, 0, 0)
-    GLubyte displayPixels[64 * 32 * 3] = { 0 };
+    GLubyte displayPixels[Chip8::kWidth * Chip8::kHeight * 3] = { 0 };
 
     // Loop through each pixel in the display (totaling 2048 pixels for a 64x32 resolution)
     for (int i = 0; i < Chip8::kWidth * Chip8::kHeight; ++i) {
@@ -60,25 +59,7 @@ int main(int argc, char** argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 32, 0, GL_RGB, GL_UNSIGNED_BYTE, displayPixels);
-
-    // Set ImGui style
-    ImGui::StyleColorsDark();
-    auto& style = ImGui::GetStyle();
-    style.FrameRounding = 2;
-    style.WindowRounding = 4;
-    style.WindowPadding = ImVec2(16, 12);
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.094f, 0.094f, 0.101f, 1);
-
-    // Load custom font for ImGui
-    ImFont* font = io.Fonts->AddFontFromMemoryCompressedTTF(jetbrains_mono_compressed_data, jetbrains_mono_compressed_size, 18);
-    if (!font) {
-        std::cerr << "Error: failed to load font." << std::endl;
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-    io.Fonts->Build();
-    ImGui::SetCurrentFont(font);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Chip8::kWidth, Chip8::kHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, displayPixels);
 
     // Initialize ImGui GLFW and OpenGL3 renderers
     ImGui_ImplGlfw_InitForOpenGL(window, true);

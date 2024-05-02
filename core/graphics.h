@@ -13,7 +13,7 @@ class GUI {
 public:
     GUI(Chip8* chip8, GLuint displayTexture, GLubyte* displayPixels, GLFWwindow* window);
     void Render();
-    static constexpr int kDisplayScale = 12;
+    int kDisplayScale = 15;
 
 private:
     Chip8* chip8;
@@ -21,8 +21,9 @@ private:
     GLubyte* displayPixels;
     GLFWwindow* window;
 
-    ImVec4 fgColor = ImVec4(0.0f, 1.0f, 0.611f, 1.0f);
-    ImVec4 bgColor = ImVec4(0.047f, 0.047f, 0.047f, 1.0f);
+    // RGBA
+    ImVec4 foregroundColour = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+    ImVec4 backgroundColour = ImVec4(0.047f, 0.047f, 0.047f, 1.0f);
     ImVec4 labelColor = ImVec4(1.0f, 0.3f, 0.3f, 1.0f);
     ImVec4 successColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -35,12 +36,17 @@ private:
 
     void Tick(GLFWwindow* window);
     void RenderDisplay(float framerate);
+    void RenderRom();
+    void RenderDisassembler();
     void RenderGeneral(float);
     void RenderCPUState();
     void RenderDebug();
     void RenderMemory();
     void RenderKeypadState();
     void RenderStack();
+
+    std::string DisassembleOpcode(uint16_t opcode, int address);
+
 
     MemoryEditor memoryEditor;
 };
