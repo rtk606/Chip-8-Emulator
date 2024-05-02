@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "chip8.h"
 #include "opcode.h"
 #include "parser.h"
@@ -14,25 +15,22 @@ void Chip8::ResetChip8() {
 }
 
 bool Chip8::LoadRom(std::string_view filename) {
-    std::cout << "Attempting to open ROM file at path: " << filename << std::endl; 
+    std::cout << "Attempting to open ROM file at path: " << filename << std::endl;
     std::ifstream file(filename.data(), std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         std::cerr << "Failed to open ROM file." << std::endl;
         return false;
     }
 
-    // Find the last occurrence of a backslash
-    size_t position = filename.find_last_of("\\");
-
-    // For the GUI (todo fix romPath, hardcoded for now)
-    romTitle = filename.substr(position + 1); 
-    romPath = "C:\\Users\\RTK\\C++\\Chip8\\invaders.ch8";
+    // ROM settings for GUI
+    romPath = std::filesystem::absolute(filename).string();
+    romTitle = std::filesystem::path(romPath).filename().string();
     romSize = file.tellg();
 
     if (romSize <= 0) {
         std::cerr << "ROM file is empty or read error occurred." << std::endl;
         return false;
-    }    
+    }
 
     file.seekg(0, std::ios::beg);
     file.read(reinterpret_cast<char*>(&memory[kStartAddress]), romSize);

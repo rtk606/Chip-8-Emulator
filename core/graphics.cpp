@@ -8,10 +8,11 @@
 
 GUI::GUI(Chip8* chip8, GLuint texture, GLubyte* pixels, GLFWwindow* window) : chip8(chip8), displayTexture(texture), displayPixels(pixels), window(window) {
     memoryEditor.Cols = 8;
-    memoryEditor.GotoAddr = 0x200;
+    memoryEditor.GotoAddr = 0x2A0;
 }
 
 void GUI::Tick(GLFWwindow* window) {
+    // Count ticks only if the window is active
     if (ImGui::IsWindowFocused()) {
         for (int i = 0; i < 16; ++i) {
             chip8->keypad[i] = (glfwGetKey(window, chip8->keymap[i]) == GLFW_PRESS);
@@ -293,6 +294,7 @@ std::string GUI::DisassembleOpcode(uint16_t opcode, int address) {
         ss << "Unknown Opcode: " << std::setw(4) << opcode;
         break;
     }
+
     return ss.str();
 }
 
@@ -412,7 +414,6 @@ void GUI::RenderKeypadState() {
 
 void GUI::RenderStack() {
     ImGui::Begin("Stack", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-
     ImGui::Columns(2, NULL, true);
 
     // First column: Display the first 8 entries
